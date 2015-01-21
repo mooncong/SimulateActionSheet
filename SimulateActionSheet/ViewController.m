@@ -8,7 +8,7 @@
 
 #import "ViewController.h"
 #import "SimulateActionSheet.h"
-@interface ViewController ()<SimulateActionSheetDelegate,UIPickerViewDataSource>{
+@interface ViewController ()<SimulateActionSheetDelegate, UIPickerViewDataSource>{
     SimulateActionSheet *sheet;
     NSArray* arrays;
 }
@@ -19,7 +19,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-    arrays = [NSArray arrayWithObjects:@"letv",@"kankan",@"tencent",@"sohu",@"pptc", nil];
+    arrays = [NSArray arrayWithObjects:@"letv",@"kankan",@"tencent",@"sohu",@"pptv", nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -29,32 +29,35 @@
 - (IBAction)action:(id)sender {
     sheet = [SimulateActionSheet styleDefault];
     sheet.delegate = self;
-    sheet.pickerView.delegate=self;
+    //必须在设置delegate之后调用，否则无法选中指定的行
+    [sheet selectRow:arrays.count/2 inComponent:0 animated:YES];
     [sheet show:self];
 }
 
 -(void)actionCancle{
     [sheet dismiss:self];
 }
+
 -(void)actionDone{
     [sheet dismiss:self];
+    
+    NSUInteger index = [sheet selectedRowInComponent:0];
+    
+    NSLog(@"done with index of %d",index);
 }
+
 -(NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView
 {
-    NSLog(@"numberofComponents");
     return 1;
 }
 
 -(NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
 {
-    NSLog(@"component:%d",component);
-    
     return arrays.count;
 }
 
 -(NSString*)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
 {
-    NSLog(@"row:%d",row);
     return [arrays objectAtIndex:row];
 }
 

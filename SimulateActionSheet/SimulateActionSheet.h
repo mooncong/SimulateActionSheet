@@ -16,7 +16,10 @@
 @property(assign, nonatomic) id<SimulateActionSheetDelegate> delegate;
 @property(strong, nonatomic)UIView* toolBar;
 @property(strong, nonatomic)UIPickerView* pickerView;
+
 +(instancetype)styleDefault;
 -(void)show:(UIViewController *)controller;
 -(void)dismiss:(UIViewController *)controller;
+-(void)selectRow:(NSInteger)row inComponent:(NSInteger)component animated:(BOOL)anime;
+-(NSInteger)selectedRowInComponent:(NSInteger)component;
 @end

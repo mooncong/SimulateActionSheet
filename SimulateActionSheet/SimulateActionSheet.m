@@ -8,10 +8,15 @@
 
 #import "SimulateActionSheet.h"
 #define RGBACOLOR(r,g,b,a) [UIColor colorWithRed:(r)/255.0f green:(g)/255.0f blue:(b)/255.0f alpha:(a)]
-@interface SimulateActionSheet()
--(UIView *)actionToolBar;
--(UIPickerView *)actionPicker;
+
+@interface SimulateActionSheet(){
+    UIColor *toolBarColor;
+    UIColor *textColorNormal;
+    UIColor *textColorPressed;
+    UIColor *pickerBgColor;
+}
 @end
+
 @implementation SimulateActionSheet
 +(instancetype)styleDefault{
     SimulateActionSheet* sheet = [[SimulateActionSheet alloc]initWithFrame:CGRectMake(
@@ -19,6 +24,7 @@
                                                                                      0,
                                                                                      UIScreen.mainScreen.bounds.size.width,
                                                                                      UIScreen.mainScreen.bounds.size.height)];
+    
     [sheet setBackgroundColor:[UIColor clearColor]];
     sheet.toolBar = [sheet actionToolBar];
     sheet.pickerView = [sheet actionPicker];
@@ -27,23 +33,38 @@
     
     return sheet;
 }
--(void)show:(UIViewController *)controller{
+
+-(instancetype)initWithFrame:(CGRect)frame{
+    self = [super initWithFrame:frame];
+    
+    if (self != nil) {
+        toolBarColor = RGBACOLOR(240.0, 240.0, 240.0, 0.9);
+        textColorNormal = RGBACOLOR(0, 146.0, 255.0, 1);
+        textColorPressed = RGBACOLOR(209.0, 213.0, 219.0, 0.9);
+        pickerBgColor = textColorPressed;
+    }
+    
+    return self;
+}
+-(void)setupInitPostion:(UIViewController *)controller{
     [UIApplication.sharedApplication.keyWindow?UIApplication.sharedApplication.keyWindow:UIApplication.sharedApplication.windows[0]
                                                                               addSubview:self];
     [self.superview bringSubviewToFront:self];
     CGFloat pickerViewYpositionHidden = UIScreen.mainScreen.bounds.size.height;
+    [self.pickerView setFrame:CGRectMake(self.pickerView.frame.origin.x,
+                                         pickerViewYpositionHidden,
+                                         self.pickerView.frame.size.width,
+                                         self.pickerView.frame.size.height)];
+    [self.toolBar setFrame:CGRectMake(self.toolBar.frame.origin.x,
+                                      pickerViewYpositionHidden,
+                                      self.toolBar.frame.size.width,
+                                      self.toolBar.frame.size.height)];
+}
+-(void)show:(UIViewController *)controller{
+    [self setupInitPostion:controller];
     
     CGFloat toolBarYposition = UIScreen.mainScreen.bounds.size.height -
     (self.pickerView.frame.size.height + self.toolBar.frame.size.height);
-    
-    [self.pickerView setFrame:CGRectMake(self.pickerView.frame.origin.x,
-                                          pickerViewYpositionHidden,
-                                          self.pickerView.frame.size.width,
-                                          self.pickerView.frame.size.height)];
-    [self.toolBar setFrame:CGRectMake(self.toolBar.frame.origin.x,
-                                       pickerViewYpositionHidden,
-                                       self.toolBar.frame.size.width,
-                                       self.toolBar.frame.size.height)];
     
     [UIView animateWithDuration:0.25f
                      animations:^{
@@ -85,9 +106,6 @@
 }
 
 -(UIView *)actionToolBar{
-    UIColor *toolBarColor = [[UIColor alloc]initWithRed:240.0/255 green:240.0/255 blue:240.0/255 alpha:0.9];
-    UIColor *textColorNormal = RGBACOLOR(0, 146.0, 255.0, 1);
-    UIColor *textColorPressed = [[UIColor alloc]initWithRed:209.0/255 green:213.0/255 blue:219.0/255 alpha:0.9];
     UIView *tools = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 320, 44)];
     tools.backgroundColor = toolBarColor;
     UIButton *cancle = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 0, 0)];
@@ -97,6 +115,7 @@
     [cancle addTarget:self action:@selector(actionCancle) forControlEvents:UIControlEventTouchUpInside];
     [cancle sizeToFit];
     [tools addSubview:cancle];
+    
     cancle.translatesAutoresizingMaskIntoConstraints = NO;
     NSLayoutConstraint *cancleConstraintLeft = [NSLayoutConstraint constraintWithItem:cancle attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:tools attribute:NSLayoutAttributeLeading multiplier:1.0f constant:10.0f];
     NSLayoutConstraint *cancleConstrainY = [NSLayoutConstraint constraintWithItem:cancle attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:tools attribute:NSLayoutAttributeCenterY multiplier:1.0f constant:0];
@@ -110,6 +129,7 @@
     [ok addTarget:self action:@selector(actionDone) forControlEvents:UIControlEventTouchUpInside];
     [ok sizeToFit];
     [tools addSubview:ok];
+    
     ok.translatesAutoresizingMaskIntoConstraints = NO;
     NSLayoutConstraint *okConstraintRight = [NSLayoutConstraint constraintWithItem:ok attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:tools attribute:NSLayoutAttributeTrailing multiplier:1.0f constant:-10.0f];
     NSLayoutConstraint *okConstraintY = [NSLayoutConstraint constraintWithItem:ok attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:tools attribute:NSLayoutAttributeCenterY multiplier:1.0f constant:0];
@@ -118,23 +138,36 @@
 
     return tools;
 }
+
 -(UIPickerView *)actionPicker;{
-    UIPickerView *picker = nil;
-    UIColor *bgColor = [[UIColor alloc]initWithRed:209.0/255 green:213.0/255 blue:219.0/255 alpha:0.9];
-    picker = [[UIPickerView alloc] initWithFrame:CGRectMake(0, 44, 0, 0)];
+    UIPickerView *picker = [[UIPickerView alloc] initWithFrame:CGRectMake(0, 44, 0, 0)];
     picker.showsSelectionIndicator=YES;
-    [picker setBackgroundColor:bgColor];
+    [picker setBackgroundColor:pickerBgColor];
     
     return picker;
 }
+
+-(void)selectRow:(NSInteger)row inComponent:(NSInteger)component animated:(BOOL)anime{
+    [_pickerView selectRow:row inComponent:component animated:anime];
+}
+
+-(NSInteger)selectedRowInComponent:(NSInteger)component{
+    return [_pickerView selectedRowInComponent:component];
+}
+
 -(void)actionDone{
     if([_delegate respondsToSelector:@selector(actionDone)]){
         [_delegate actionDone];
     }
 }
+
 -(void)actionCancle{
     if ([_delegate respondsToSelector:@selector(actionCancle)]) {
         [_delegate actionCancle];
     }
+}
+-(void)setDelegate:(id<SimulateActionSheetDelegate>)delegate{
+    _delegate = delegate;
+    _pickerView.delegate = delegate;
 }
 @end
